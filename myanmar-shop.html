@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ပန်းရောင် ဈေးဆိုင် — Online Shop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Noto+Sans+Myanmar:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1B2A4A;
+    --gold:#C9A227;
+    --ivory:#F7F3E8;
+    --teal:#2F6E6E;
+    --spice:#B33A3A;
+    --line: rgba(27,42,74,0.14);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--ivory);
+    color:var(--navy);
+    font-family:'Noto Sans Myanmar','Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .display{font-family:'Fraunces','Noto Sans Myanmar',serif;}
+
+  /* Header */
+  header{
+    padding:18px 5vw;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-bottom:1px solid var(--line);
+    position:sticky;top:0;background:var(--ivory);z-index:10;
+  }
+  .logo{
+    font-family:'Fraunces',serif;
+    font-size:1.4rem;
+    font-weight:700;
+    letter-spacing:0.02em;
+  }
+  .logo span{color:var(--spice);}
+  .cart-btn{
+    background:var(--navy);
+    color:var(--ivory);
+    border:none;
+    padding:10px 18px;
+    border-radius:999px;
+    font-family:inherit;
+    font-size:0.95rem;
+    cursor:pointer;
+    display:flex;align-items:center;gap:8px;
+    transition:transform .15s ease, background .2s ease;
+  }
+  .cart-btn:hover{background:var(--teal);}
+  .cart-btn:active{transform:scale(0.96);}
+  .cart-count{
+    background:var(--gold);color:var(--navy);
+    border-radius:999px;min-width:20px;height:20px;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:0.75rem;font-weight:700;padding:0 5px;
+  }
+
+  /* Hero */
+  .hero{
+    padding:64px 5vw 48px;
+    max-width:900px;
+  }
+  .eyebrow{
+    color:var(--teal);font-weight:600;font-size:0.85rem;
+    letter-spacing:0.12em;text-transform:uppercase;margin-bottom:10px;
+  }
+  h1{
+    font-size:clamp(2rem,5vw,3.2rem);
+    line-height:1.15;margin:0 0 16px;
+  }
+  .hero p{font-size:1.05rem;line-height:1.7;color:#3a4664;max-width:56ch;}
+
+  /* woven divider — signature element */
+  .divider{
+    height:14px;
+    background-image:repeating-linear-gradient(135deg, var(--gold) 0 8px, transparent 8px 16px),
+                      repeating-linear-gradient(45deg, var(--spice) 0 8px, transparent 8px 16px);
+    background-blend-mode:multiply;
+    opacity:0.85;
+    margin:0 0 8px;
+  }
+
+  /* Products */
+  .section-title{
+    padding:40px 5vw 0;
+    display:flex;align-items:baseline;gap:14px;
+  }
+  .section-title h2{font-size:1.6rem;margin:0;}
+  .section-title .count{color:#6b7590;font-size:0.9rem;}
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:22px;
+    padding:24px 5vw 60px;
+  }
+  .card{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:14px;
+    overflow:hidden;
+    display:flex;flex-direction:column;
+    transition:box-shadow .2s ease, transform .2s ease;
+  }
+  .card:hover{box-shadow:0 10px 24px rgba(27,42,74,0.12);transform:translateY(-2px);}
+  .thumb{
+    height:150px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:3rem;
+  }
+  .card-body{padding:16px;display:flex;flex-direction:column;gap:8px;flex:1;}
+  .card-body h3{margin:0;font-size:1.05rem;}
+  .desc{color:#5c6685;font-size:0.85rem;line-height:1.5;flex:1;}
+  .price-row{display:flex;align-items:center;justify-content:space-between;margin-top:4px;}
+  .price{font-family:'Fraunces',serif;font-weight:700;color:var(--spice);font-size:1.15rem;}
+  .add-btn{
+    background:var(--ivory);
+    border:1.5px solid var(--navy);
+    color:var(--navy);
+    padding:8px 14px;border-radius:999px;
+    font-family:inherit;font-size:0.85rem;font-weight:600;
+    cursor:pointer;transition:all .15s ease;
+  }
+  .add-btn:hover{background:var(--navy);color:var(--ivory);}
+  .add-btn.added{background:var(--teal);border-color:var(--teal);color:#fff;}
+
+  /* Cart drawer */
+  .overlay{
+    position:fixed;inset:0;background:rgba(27,42,74,0.35);
+    opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:20;
+  }
+  .overlay.show{opacity:1;pointer-events:auto;}
+  .drawer{
+    position:fixed;top:0;right:0;height:100%;width:min(400px,92vw);
+    background:var(--ivory);z-index:21;
+    transform:translateX(100%);transition:transform .3s ease;
+    display:flex;flex-direction:column;
+    box-shadow:-8px 0 30px rgba(0,0,0,0.15);
+  }
+  .drawer.show{transform:translateX(0);}
+  .drawer-head{
+    padding:20px;border-bottom:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .drawer-head h2{margin:0;font-size:1.3rem;}
+  .close-btn{background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--navy);}
+  .drawer-items{flex:1;overflow-y:auto;padding:12px 20px;}
+  .drawer-item{
+    display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);align-items:center;
+  }
+  .drawer-item .ic{font-size:1.8rem;}
+  .drawer-item .info{flex:1;}
+  .drawer-item .info h4{margin:0 0 4px;font-size:0.95rem;}
+  .qty-row{display:flex;align-items:center;gap:8px;}
+  .qty-row button{
+    width:24px;height:24px;border-radius:50%;border:1px solid var(--navy);
+    background:#fff;cursor:pointer;font-size:0.9rem;line-height:1;
+  }
+  .qty-row span{min-width:18px;text-align:center;font-size:0.9rem;}
+  .remove-x{background:none;border:none;color:var(--spice);cursor:pointer;font-size:0.8rem;text-decoration:underline;margin-left:auto;}
+  .empty-cart{padding:60px 20px;text-align:center;color:#6b7590;}
+  .drawer-foot{padding:20px;border-top:1px solid var(--line);}
+  .total-row{display:flex;justify-content:space-between;font-size:1.1rem;margin-bottom:14px;}
+  .total-row .amt{font-family:'Fraunces',serif;font-weight:700;color:var(--spice);}
+  .checkout-btn{
+    width:100%;padding:14px;border:none;border-radius:10px;
+    background:var(--spice);color:#fff;font-family:inherit;
+    font-size:1rem;font-weight:600;cursor:pointer;transition:background .2s ease;
+  }
+  .checkout-btn:hover{background:#932e2e;}
+  .checkout-btn:disabled{background:#ccc;cursor:not-allowed;}
+  .buyer-form{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+  .buyer-form input, .buyer-form textarea{
+    font-family:inherit;font-size:0.9rem;
+    padding:10px 12px;border:1px solid var(--line);border-radius:8px;
+    background:#fff;color:var(--navy);resize:none;
+  }
+  .buyer-form input:focus, .buyer-form textarea:focus{outline:2px solid var(--teal);outline-offset:1px;}
+  .checkout-msg{font-size:0.85rem;margin-top:10px;text-align:center;color:var(--teal);min-height:1.2em;}
+  .checkout-msg.error{color:var(--spice);}
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--navy);color:var(--ivory);padding:12px 22px;border-radius:999px;
+    font-size:0.9rem;opacity:0;transition:all .25s ease;z-index:30;pointer-events:none;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  footer{
+    padding:30px 5vw;text-align:center;color:#6b7590;font-size:0.85rem;
+    border-top:1px solid var(--line);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">ပန်း<span>ရောင်</span> ဈေးဆိုင်</div>
+  <button class="cart-btn" onclick="toggleCart(true)">
+    🛍️ ခြင်းတောင်း <span class="cart-count" id="cartCount">0</span>
+  </button>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">Handmade · Local · မြန်မာ့ရိုးရာ</div>
+  <h1 class="display">လက်မှုပညာနှင့် ရိုးရာပစ္စည်းများကို<br>အွန်လိုင်းမှ တိုက်ရိုက်ဝယ်ယူပါ</h1>
+  <p>တစ်ခုချင်းစီကို ကျွမ်းကျင်သူများက လက်ဖြင့်ပြုလုပ်ထားပြီး အရည်အသွေးကို အာမခံပါသည်။ ကြိုက်နှစ်သက်ရာ ပစ္စည်းများကို ခြင်းတောင်းထဲ ထည့်ပြီး မှာယူလိုက်ပါ။</p>
+</section>
+<div class="divider"></div>
+
+<div class="section-title">
+  <h2 class="display">ရောင်းအားရှိသောပစ္စည်းများ</h2>
+  <span class="count" id="prodCount"></span>
+</div>
+
+<div class="grid" id="productGrid"></div>
+
+<footer>© 2026 ပန်းရောင် ဈေးဆိုင် — ဒီမိုဆိုင် (demo) ဝဘ်ဆိုက်ဖြစ်ပါသည်</footer>
+
+<div class="overlay" id="overlay" onclick="toggleCart(false)"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head">
+    <h2 class="display">ခြင်းတောင်း</h2>
+    <button class="close-btn" onclick="toggleCart(false)">✕</button>
+  </div>
+  <div class="drawer-items" id="drawerItems"></div>
+  <div class="drawer-foot">
+    <div class="total-row">
+      <span>စုစုပေါင်း</span>
+      <span class="amt" id="totalAmt">0 Ks</span>
+    </div>
+    <div id="buyerForm" class="buyer-form">
+      <input type="text" id="buyerName" placeholder="အမည်" required>
+      <input type="tel" id="buyerPhone" placeholder="ဖုန်းနံပါတ်" required>
+      <textarea id="buyerAddress" placeholder="လိပ်စာ" rows="2" required></textarea>
+    </div>
+    <button class="checkout-btn" id="checkoutBtn" onclick="checkout()">အော်ဒါတင်မည်</button>
+    <div id="checkoutMsg" class="checkout-msg"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const products = [
+  {id:1, name:"ရွှေချည်ထိုးလုံချည်", desc:"လက်ရက်ရွှေချည် ချည်ထိုးထားသော ရိုးရာလုံချည်", price:85000, icon:"🧵"},
+  {id:2, name:"သနပ်ခါးအလှကုန်စုံ", desc:"သဘာဝသနပ်ခါးဖြင့် ပြုလုပ်ထားသည့် အလှကုန်အစုံ", price:12000, icon:"🌾"},
+  {id:3, name:"ရိုးရာချည်ထိုးအိတ်", desc:"လက်ဖြင့်ချုပ်ထားသော ချည်ထိုးပုံစံ အိတ်လေး", price:35000, icon:"👜"},
+  {id:4, name:"ကျောက်ပတ္တမြားလက်ကောက်", desc:"မြန်မာ့ကျောက်မျက်ဖြင့် ပြုလုပ်ထားသည့် လက်ကောက်", price:45000, icon:"💍"},
+  {id:5, name:"ရိုးရာလက်ချိတ်ခြင်း", desc:"ဝါးရက်ဖြင့် ရက်လုပ်ထားသော လက်ကိုင်ခြင်း", price:22000, icon:"🧺"},
+  {id:6, name:"မွန်ကွမ်းအိတ်", desc:"ရိုးရာပုံစံ ချုပ်လုပ်ထားသော ကွမ်းအိတ်လေး", price:18000, icon:"👛"},
+  {id:7, name:"လက်ရေးထိုး လက်ကိုင်ပန်ကာ", desc:"လက်ရေးပန်းချီဖြင့် ရေးဆွဲထားသည့် ပန်ကာ", price:9000, icon:"🪭"},
+  {id:8, name:"ငှက်ကုန်းယက်ခါးပတ်", desc:"ရွှေချည်ဖြင့်ရက်လုပ်ထားသည့် ခါးပတ်", price:28000, icon:"🎗️"}
+];
+
+// 👉 BotFather ကနေရတဲ့ Bot Token နဲ့ Chat ID ကို ဒီနေရာမှာ လဲထည့်ပါ
+const TELEGRAM_BOT_TOKEN = "8869099797:AAEMKXfPopB7YQ5m4o6wozUBIMPLQFTA3Dk";
+const TELEGRAM_CHAT_ID = "8869099797";
+
+let cart = {}; // id -> qty
+
+function fmt(n){ return n.toLocaleString('en-US') + " Ks"; }
+
+function renderProducts(){
+  const grid = document.getElementById('productGrid');
+  grid.innerHTML = products.map(p => `
+    <div class="card">
+      <div class="thumb">${p.icon}</div>
+      <div class="card-body">
+        <h3>${p.name}</h3>
+        <div class="desc">${p.desc}</div>
+        <div class="price-row">
+          <span class="price">${fmt(p.price)}</span>
+          <button class="add-btn" id="btn-${p.id}" onclick="addToCart(${p.id})">ခြင်းထဲထည့်မည်</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('prodCount').textContent = products.length + " မျိုး";
+}
+
+function addToCart(id){
+  cart[id] = (cart[id] || 0) + 1;
+  updateCartUI();
+  const btn = document.getElementById('btn-'+id);
+  btn.textContent = "✓ ထည့်ပြီး";
+  btn.classList.add('added');
+  setTimeout(()=>{ btn.textContent = "ခြင်းထဲထည့်မည်"; btn.classList.remove('added'); }, 1000);
+  showToast(products.find(p=>p.id===id).name + " ခြင်းထဲထည့်လိုက်ပါပြီ");
+}
+
+function changeQty(id, delta){
+  if(!cart[id]) return;
+  cart[id] += delta;
+  if(cart[id] <= 0) delete cart[id];
+  updateCartUI();
+}
+
+function removeItem(id){
+  delete cart[id];
+  updateCartUI();
+}
+
+function cartTotal(){
+  return Object.entries(cart).reduce((sum,[id,qty]) => {
+    const p = products.find(pr => pr.id == id);
+    return sum + p.price * qty;
+  }, 0);
+}
+
+function cartItemCount(){
+  return Object.values(cart).reduce((a,b)=>a+b,0);
+}
+
+function updateCartUI(){
+  document.getElementById('cartCount').textContent = cartItemCount();
+  const container = document.getElementById('drawerItems');
+  const entries = Object.entries(cart);
+  if(entries.length === 0){
+    container.innerHTML = '<div class="empty-cart">ခြင်းတောင်း ဗလာဖြစ်နေပါသည်<br>ပစ္စည်းများ ထည့်ကြည့်ပါ</div>';
+  } else {
+    container.innerHTML = entries.map(([id,qty]) => {
+      const p = products.find(pr => pr.id == id);
+      return `
+        <div class="drawer-item">
+          <div class="ic">${p.icon}</div>
+          <div class="info">
+            <h4>${p.name}</h4>
+            <div class="qty-row">
+              <button onclick="changeQty(${id},-1)">−</button>
+              <span>${qty}</span>
+              <button onclick="changeQty(${id},1)">+</button>
+              <button class="remove-x" onclick="removeItem(${id})">ဖယ်ရှား</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+  document.getElementById('totalAmt').textContent = fmt(cartTotal());
+  document.getElementById('checkoutBtn').disabled = entries.length === 0;
+}
+
+function toggleCart(show){
+  document.getElementById('drawer').classList.toggle('show', show);
+  document.getElementById('overlay').classList.toggle('show', show);
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=> t.classList.remove('show'), 1800);
+}
+
+async function checkout(){
+  const msgEl = document.getElementById('checkoutMsg');
+  const name = document.getElementById('buyerName').value.trim();
+  const phone = document.getElementById('buyerPhone').value.trim();
+  const address = document.getElementById('buyerAddress').value.trim();
+
+  if(Object.keys(cart).length === 0) return;
+
+  if(!name || !phone || !address){
+    msgEl.textContent = "အမည်၊ ဖုန်း၊ လိပ်စာ အပြည့်အစုံ ဖြည့်ပေးပါ";
+    msgEl.classList.add('error');
+    return;
+  }
+
+  if(TELEGRAM_BOT_TOKEN.includes("YOUR_BOT_TOKEN") || TELEGRAM_CHAT_ID.includes("YOUR_CHAT_ID")){
+    msgEl.textContent = "Telegram Bot Token / Chat ID ကို code ထဲမှာ အရင်ထည့်ပေးပါ";
+    msgEl.classList.add('error');
+    return;
+  }
+
+  const orderLines = Object.entries(cart).map(([id,qty]) => {
+    const p = products.find(pr => pr.id == id);
+    return `${p.name} x${qty} = ${fmt(p.price*qty)}`;
+  }).join('\n');
+
+  const btn = document.getElementById('checkoutBtn');
+  btn.disabled = true;
+  btn.textContent = "ပို့နေသည်...";
+  msgEl.classList.remove('error');
+  msgEl.textContent = "";
+
+  const messageText =
+    `🛍️ *အော်ဒါအသစ်*\n\n` +
+    `👤 အမည်: ${name}\n` +
+    `📞 ဖုန်း: ${phone}\n` +
+    `📍 လိပ်စာ: ${address}\n\n` +
+    `📦 ပစ္စည်းများ:\n${orderLines}\n\n` +
+    `💰 စုစုပေါင်း: ${fmt(cartTotal())}`;
+
+  try{
+    const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text: messageText,
+        parse_mode: "Markdown"
+      })
+    });
+
+    if(res.ok){
+      msgEl.classList.remove('error');
+      msgEl.textContent = "အော်ဒါပို့ပြီးပါပြီ — ကျေးဇူးတင်ပါသည်!";
+      showToast("အော်ဒါလက်ခံရရှိပါပြီ 🎉");
+      cart = {};
+      document.getElementById('buyerName').value = "";
+      document.getElementById('buyerPhone').value = "";
+      document.getElementById('buyerAddress').value = "";
+      updateCartUI();
+      setTimeout(()=> toggleCart(false), 1500);
+    } else {
+      msgEl.classList.add('error');
+      msgEl.textContent = "အော်ဒါပို့မရပါ၊ ထပ်ကြိုးစားပေးပါ";
+    }
+  } catch(err){
+    msgEl.classList.add('error');
+    msgEl.textContent = "Network error — ထပ်ကြိုးစားပေးပါ";
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "အော်ဒါတင်မည်";
+  }
+}
+
+renderProducts();
+updateCartUI();
+</script>
+</body>
+</html>
